@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 public class StoreFileResponse {
 //    private Long fileId;
 
-    private String fileName;
+    private String fileId;
 
-    private String generatedName;
+    private String fileName;
 
     private String extension;
 }

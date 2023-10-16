@@ -32,29 +32,29 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public StoreFileResponse storeFile(SendFileRequest request) {
-        String generatedFileName = generateFileName();
+        String id = UUID.randomUUID().toString();
+        String generatedFileName = generateFileName(id, request.getExtension());
 
-        asyncStoreFile(request, generatedFileName);
+        asyncStoreFile(id, request, generatedFileName);
 
-        return new StoreFileResponse(request.getFileName(), generatedFileName, request.getExtension());
+        return new StoreFileResponse(id, generatedFileName, request.getExtension());
     }
 
-    private String generateFileName() {
-        UUID uuid = UUID.randomUUID();
-        String uniqueStr = uuid.toString().substring(0, 8);
+    private String generateFileName(String id, String extension) {
+        String uniqueStr = id.substring(0, 4);
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss");
-        return String.format("F-%s-%s", now.format(formatter), uniqueStr.toUpperCase());
+        return String.format("F_%s_%s.%s", now.format(formatter), uniqueStr, extension);
     }
     @Async
-    protected void asyncStoreFile(SendFileRequest request, String generatedFileName) {
+    protected void asyncStoreFile(String id, SendFileRequest request, String generatedFileName) {
         URL fileUrl = getUrl(request);
         byte[] byteArray = getByteArray(fileUrl);
 
         FileRecord file = new FileRecord();
-        file.setFileName(request.getFileName());
+        file.setId(id);
+        file.setFileName(generatedFileName);
         file.setFileData(byteArray);
-        file.setGeneratedName(generatedFileName);
         file.setExtension(request.getExtension());
         fileRecordRepository.save(file);
     }
@@ -69,15 +69,15 @@ public class FileServiceImpl implements FileService {
     private byte[] getByteArray(URL url) {
         try (InputStream in = url.openStream()) {
         byte[] byteArray = IOUtils.toByteArray(in);
-        if (byteArray.length == 0) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
+        if (byteArray.length == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File invalidd");
         return byteArray;
         } catch (IOException e){
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed retrieving file");
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
         }
     }
 
     @Override
-    public FileResponse retrieveFile(Long fileId) {
+    public FileResponse retrieveFile(String  fileId) {
         FileRecord fileRecord = fileRecordRepository.findById(fileId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not exists")
                 );

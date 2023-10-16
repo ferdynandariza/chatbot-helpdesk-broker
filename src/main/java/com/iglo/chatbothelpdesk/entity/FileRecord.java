@@ -13,16 +13,17 @@ import lombok.NoArgsConstructor;
 public class FileRecord {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String fileName;
-
-    private String generatedName;
 
     private String extension;
 
     @Lob
     private byte[] fileData;
+
+    @ManyToOne
+    @JoinColumn(name = "ticketId", referencedColumnName = "id")
+    private Ticket ticket;
 
 }

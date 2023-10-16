@@ -40,7 +40,7 @@ public class FileController {
             path = "/{fileId}",
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
     )
-    public ResponseEntity<StreamingResponseBody> storeFile(@PathVariable Long fileId){
+    public ResponseEntity<StreamingResponseBody> storeFile(@PathVariable String fileId){
         FileResponse fileResponse = fileService.retrieveFile(fileId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,

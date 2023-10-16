@@ -8,5 +8,5 @@ public interface FileService {
 
     StoreFileResponse storeFile(SendFileRequest request);
 
-    FileResponse retrieveFile(Long fileId);
+    FileResponse retrieveFile(String fileId);
 }

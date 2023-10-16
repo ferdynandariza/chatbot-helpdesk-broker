@@ -9,8 +9,10 @@ public class UserRequest {
 
     private String name;
 
+    private Long companyId;
+
     private String phone;
 
-    private Long companyId;
+    private String telegramId;
 
 }

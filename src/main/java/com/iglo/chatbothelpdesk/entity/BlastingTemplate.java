@@ -3,8 +3,7 @@ package com.iglo.chatbothelpdesk.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

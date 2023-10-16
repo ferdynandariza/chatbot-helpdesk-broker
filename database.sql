@@ -22,7 +22,7 @@ create table UserTable
     phone      varchar(100),
     telegramId varchar(100),
     foreign key (companyId) references company (id)
-)
+);
 
 create table BlastingTemplate
 (
@@ -33,27 +33,26 @@ create table BlastingTemplate
     phone      varchar(100) not null,
     fields     varchar(100) not null,
     sendCount  int          not null
-)
+);
 
 create table Ticket
 (
-    id           bigint primary key identity (1, 1),
-    number       varchar(100) unique not null,
-    parentId     bigint,
-    level        int                 not null,
-    description  varchar(500)        not null,
-    attachmentId bigint,
-    foreign key (attachmentId) references FileRecord (id),
-    foreign key (parentId) references Ticket (id)
-)
+    id          bigint primary key identity (1, 1),
+    number      varchar(100) unique not null,
+    requestorId bigint              not null,
+    description varchar(500)        not null,
+    createdAt   bigint              not null,
+    foreign key (requestorId) references UserTable (id)
+);
 
 CREATE TABLE FileRecord
 (
-    id            INT PRIMARY KEY identity (1,1),
+    id            VARCHAR(100) PRIMARY KEY,
     fileName      NVARCHAR(255),
-    generatedName NVARCHAR(255) UNIQUE,
     extension     VARCHAR(10),
-    fileData      VARBINARY(MAX)
+    fileData      VARBINARY(MAX),
+    ticketId      bigint,
+    foreign key (ticketId) references Ticket (id)
 );
 
 select *
@@ -61,6 +60,9 @@ from Company;
 
 select *
 from UserTable;
+
+select *
+from Ticket;
 
 select *
 from FileRecord;

@@ -11,7 +11,5 @@ public class SendFileRequest {
 
     private String urlFile;
 
-    private String fileName;
-
     private String extension;
 }

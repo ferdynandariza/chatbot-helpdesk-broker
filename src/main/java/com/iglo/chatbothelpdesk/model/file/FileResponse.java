@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FileResponse {
 
-    private Long fileId;
+    private String fileId;
 
     private String fileName;
 

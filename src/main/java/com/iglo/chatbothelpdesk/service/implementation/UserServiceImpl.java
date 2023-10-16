@@ -50,13 +50,13 @@ public class UserServiceImpl implements UserService {
     public UserResponse register(UserRequest request) {
         Company company = getCompany(request.getCompanyId());
 
-        User user = new User(
-        null,
-          company,
-          request.getName(),
-          request.getPhone()
-        );
+        User user = new User();
+        user.setCompany(company);
+        user.setName(request.getName());
+        user.setPhone(request.getPhone());
+        user.setTelegramId(request.getTelegramId());
         userRepository.save(user);
+
         return getUserResponse(user);
     }
 
