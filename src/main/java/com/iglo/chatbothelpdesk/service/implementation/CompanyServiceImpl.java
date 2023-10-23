@@ -7,6 +7,7 @@ import com.iglo.chatbothelpdesk.model.company.CompanyResponse;
 import com.iglo.chatbothelpdesk.service.CompanyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -18,6 +19,7 @@ public class CompanyServiceImpl implements CompanyService {
         this.companyRepository = companyRepository;
     }
 
+    @Transactional
     @Override
     public CompanyResponse insert(CompanyRequest request) {
         Company company = new Company();
@@ -26,6 +28,7 @@ public class CompanyServiceImpl implements CompanyService {
         return new CompanyResponse(company.getId(), company.getName());
     }
 
+    @Transactional
     @Override
     public CompanyResponse get(Long companyId) {
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new ResponseStatusException(

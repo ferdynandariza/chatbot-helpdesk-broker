@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StoreFileResponse {
-//    private Long fileId;
 
     private String fileId;
 

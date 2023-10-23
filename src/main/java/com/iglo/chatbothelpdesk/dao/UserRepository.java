@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findFirstByPhone(String phone);
 
+    Optional<User> findFirstByTelegramId(String telegramId);
+
 }

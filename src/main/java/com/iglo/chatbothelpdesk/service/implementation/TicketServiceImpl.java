@@ -11,6 +11,7 @@ import com.iglo.chatbothelpdesk.model.ticket.TicketResponse;
 import com.iglo.chatbothelpdesk.service.TicketService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ public class TicketServiceImpl implements TicketService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     @Override
     public TicketResponse createTicket(TicketRequest request) {
         Ticket ticket = saveTicket(request);

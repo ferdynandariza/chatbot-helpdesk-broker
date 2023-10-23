@@ -21,7 +21,8 @@ create table UserTable
     name       varchar(100) not null,
     phone      varchar(100),
     telegramId varchar(100),
-    foreign key (companyId) references company (id)
+    foreign key (companyId) references company (id),
+    unique (phone, telegramId)
 );
 
 create table BlastingTemplate
@@ -66,3 +67,8 @@ from Ticket;
 
 select *
 from FileRecord;
+
+select *
+from BlastingTemplate;
+
+delete from FileRecord where ticketId is null;

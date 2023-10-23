@@ -10,10 +10,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableAsync
 @EnableScheduling
-public class IgloApplication {
+public class HelpdeskBrokerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(IgloApplication.class, args);
+		SpringApplication.run(HelpdeskBrokerApplication.class, args);
 	}
 
 }

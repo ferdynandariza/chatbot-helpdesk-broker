@@ -5,11 +5,14 @@ import com.iglo.chatbothelpdesk.adapter.BlastingAdapter;
 import com.iglo.chatbothelpdesk.dao.BlastingTemplateRepository;
 import com.iglo.chatbothelpdesk.entity.BlastingTemplate;
 import com.iglo.chatbothelpdesk.model.blasting.BlastingTemplateRequest;
-import com.iglo.chatbothelpdesk.model.blasting.BlastingWaResponse;
+import com.iglo.chatbothelpdesk.model.dolphin.BlastingWaResponse;
 import com.iglo.chatbothelpdesk.service.BlastingService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -27,6 +30,7 @@ public class BlastingServiceImpl implements BlastingService {
         this.blastingTemplateRepository = blastingTemplateRepository;
     }
 
+    @Transactional
     @Override
     public String send(BlastingTemplateRequest request) {
         BlastingTemplate template = new BlastingTemplate();
@@ -43,15 +47,19 @@ public class BlastingServiceImpl implements BlastingService {
         }
 
         ResponseEntity<BlastingWaResponse> response = blastingAdapter.blasting(template);
+        if (response.getBody() == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed hit blasting");
+
         log.info(response.getBody().getStatus());
         if (response.getBody().getStatus().equalsIgnoreCase("success")) {
-            blastingTemplateRepository.save(template);
+//            blastingTemplateRepository.save(template);
             return "Successfully";
-        } else {
-            return "Fail hit blasting";
         }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "[3Dolphin]: " + response.getBody().getMessage());
     }
 
+    @Transactional
     @Override
     public BlastingTemplate getBlastingTemplate() {
         List<BlastingTemplate> templateList = blastingTemplateRepository.findAll();
