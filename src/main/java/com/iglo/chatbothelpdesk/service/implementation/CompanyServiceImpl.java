@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
@@ -35,6 +37,14 @@ public class CompanyServiceImpl implements CompanyService {
                 HttpStatus.NOT_FOUND, "Company not found"
         ));
         return new CompanyResponse(company.getId(), company.getName());
+    }
+
+    @Override
+    public List<CompanyResponse> getCompanies() {
+        List<Company> companies = companyRepository.findAll();
+        return companies.stream()
+                .map(company -> new CompanyResponse(company.getId(), company.getName()))
+                .toList();
     }
 
 }

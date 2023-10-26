@@ -7,8 +7,14 @@ import lombok.Data;
 @AllArgsConstructor
 public class TicketResponse {
 
+    private Long id;
+
     private String ticketNumber;
 
-    private Long requestorId;
+    private String requestorName;
+
+    private String description;
+
+    private Long createdAt;
 
 }

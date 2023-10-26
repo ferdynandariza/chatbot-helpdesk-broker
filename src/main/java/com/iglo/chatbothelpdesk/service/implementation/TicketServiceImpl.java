@@ -9,6 +9,10 @@ import com.iglo.chatbothelpdesk.entity.User;
 import com.iglo.chatbothelpdesk.model.ticket.TicketRequest;
 import com.iglo.chatbothelpdesk.model.ticket.TicketResponse;
 import com.iglo.chatbothelpdesk.service.TicketService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -41,7 +46,16 @@ public class TicketServiceImpl implements TicketService {
 
         setAttachmentsTicket(request.getAttachmentsId(), ticket);
 
-        return new TicketResponse(ticket.getNumber(), ticket.getRequestor().getId());
+        return getTicketResponse(ticket);
+    }
+
+    private static TicketResponse getTicketResponse(Ticket ticket) {
+        return new TicketResponse(
+                ticket.getId(),
+                ticket.getNumber(),
+                ticket.getRequestor().getName(),
+                ticket.getDescription(),
+                ticket.getCreatedAt());
     }
 
     private String generateTicketNumber() {
@@ -76,5 +90,20 @@ public class TicketServiceImpl implements TicketService {
                 });
     }
 
+    @Override
+    public TicketResponse getTicket(Long ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Ticket Found With Such Id")
+        );
+        return getTicketResponse(ticket);
+    }
+
+    @Override
+    public Page<TicketResponse> searchTickets(String ticketNumber, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Ticket> tickets = ticketRepository.findAllByNumberContaining(Optional.of(ticketNumber), pageable);
+        List<TicketResponse> ticketResponses = tickets.stream().map(TicketServiceImpl::getTicketResponse).toList();
+        return new PageImpl<>(ticketResponses, pageable, tickets.getTotalElements());
+    }
 
 }

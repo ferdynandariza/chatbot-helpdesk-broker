@@ -1,12 +1,15 @@
 package com.iglo.chatbothelpdesk.aspect;
 
+import com.iglo.chatbothelpdesk.model.WebResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 
@@ -16,22 +19,18 @@ import java.util.Arrays;
 public class LogAspect {
 
     @Pointcut("execution(* com.iglo.chatbothelpdesk.controller.*Controller.*(..))")
-    public void controllerPackageMethods(){
-    }
+    public void controllerPackageMethods(){}
 
-    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestBody) && args(body)")
-    public void withRequestBodyAnnotation(Object body) {
-    }
+    @Pointcut("execution(* com.iglo.chatbothelpdesk.controller.ErrorController.*(..))")
+    public void errorControllerMethods(){}
 
-    @Before(value = "withRequestBodyAnnotation(body)", argNames = "body")
-    public void logBeforeMethodWithRequestBody(Object body) {
-        log.info("Body: {}", body);
-    }
+    @Pointcut("execution(* com.iglo.chatbothelpdesk..*.*(..)) && !controllerPackageMethods()")
+    public void allMethodsExceptInController(){}
 
 
-    @Before("controllerPackageMethods()")
-    public void logBeforeControllerMethodExecution(JoinPoint jp) {
-        Object[] args = jp.getArgs();
+    @Before("controllerPackageMethods() && !errorControllerMethods()")
+    public void logBeforeControllerMethodExecution(JoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
             HttpServletRequest request = attributes.getRequest();
@@ -40,17 +39,29 @@ public class LogAspect {
         }
     }
 
-
     @AfterReturning(pointcut = "controllerPackageMethods()", returning = "response")
-    public void logAfterControllerMethodExecution(Object response) {
+    public void logAfterControllerMethodsExecution(WebResponse<?> response) {
         log.info("Response: {}", response);
     }
 
-    @AfterThrowing(pointcut = "execution(* com.iglo.chatbothelpdesk.*.*(..))", throwing = "exception")
-    public void handleException(JoinPoint joinPoint, Exception exception) {
+    @AfterReturning(pointcut = "errorControllerMethods()", returning = "response")
+    public void logAfterErrorControllerMethodExecution(ResponseEntity<WebResponse<String>> response) {
+        log.info("Response: {}", response.getBody());
+    }
+
+    @Before("allMethodsExceptInController()")
+    public void logAllMethodExecution(JoinPoint joinPoint){
+        Object[] args = joinPoint.getArgs();
         String methodName = joinPoint.getSignature().toShortString();
-        log.error("Exception in method {}: {}\n{}",
-                methodName, exception.getMessage(), exception.getStackTrace());
+        log.debug("Execute method {} with arguments {}", methodName, Arrays.toString(args));
+    }
+
+    @AfterThrowing(pointcut = "allMethodsExceptInController()", throwing = "exception")
+    public void handleException(JoinPoint joinPoint, Exception exception) {
+        if (!(exception instanceof ResponseStatusException)){
+            String methodName = joinPoint.getSignature().toShortString();
+            log.error("Exception in method {}", methodName, exception);
+        }
     }
 
 }

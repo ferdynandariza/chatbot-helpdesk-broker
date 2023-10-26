@@ -1,7 +1,9 @@
 package com.iglo.chatbothelpdesk.service.implementation;
 
 import com.iglo.chatbothelpdesk.dao.FileRecordRepository;
+import com.iglo.chatbothelpdesk.dao.TicketRepository;
 import com.iglo.chatbothelpdesk.entity.FileRecord;
+import com.iglo.chatbothelpdesk.entity.Ticket;
 import com.iglo.chatbothelpdesk.model.file.FileResponse;
 import com.iglo.chatbothelpdesk.model.file.SendFileRequest;
 import com.iglo.chatbothelpdesk.model.file.StoreFileResponse;
@@ -13,12 +15,15 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -26,9 +31,10 @@ import java.util.UUID;
 public class FileServiceImpl implements FileService {
 
     private final FileRecordRepository fileRecordRepository;
-
-    public FileServiceImpl(FileRecordRepository fileRecordRepository) {
+    private final TicketRepository ticketRepository;
+    public FileServiceImpl(FileRecordRepository fileRecordRepository, TicketRepository ticketRepository) {
         this.fileRecordRepository = fileRecordRepository;
+        this.ticketRepository = ticketRepository;
     }
 
 
@@ -37,6 +43,8 @@ public class FileServiceImpl implements FileService {
     public StoreFileResponse storeFile(SendFileRequest request) {
         String id = UUID.randomUUID().toString();
         String generatedFileName = generateFileName(id);
+        String extension = request.getExtension().replace(".", "");
+        request.setExtension(extension);
 
         asyncStoreFile(id, request, generatedFileName);
         /*
@@ -49,7 +57,7 @@ public class FileServiceImpl implements FileService {
         thread.start();
         */
 
-        return new StoreFileResponse(id, generatedFileName, request.getExtension());
+        return new StoreFileResponse(id, generatedFileName, extension, "/api/files/" + id);
     }
 
     protected String generateFileName(String id) {
@@ -100,7 +108,51 @@ public class FileServiceImpl implements FileService {
         return new FileResponse(
                 fileId,
                 fileRecord.getFileName() + "." + fileRecord.getExtension(),
-                fileRecord.getFileData());
+                fileRecord.getFileData(),
+                getStreamingData(fileRecord.getFileData()));
+    }
+
+    protected static StreamingResponseBody getStreamingData(byte[] fileData) {
+        return
+            outputStream -> {
+            try {
+            IOUtils.copy(new ByteArrayInputStream(fileData), outputStream);
+            } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve file");
+            }
+        };
+    }
+
+    @Override
+    public List<StoreFileResponse> getAllFiles(Long ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Ticket Found With Such Id")
+        );
+        List<FileRecord> files = fileRecordRepository.findAllByTicket(ticket);
+        return files.stream()
+                .map(file -> new StoreFileResponse(
+                        file.getId(),
+                        file.getFileName(),
+                        file.getExtension(),
+                        "/api/files/" + file.getId()
+                ))
+                .toList();
+    }
+
+    @Override
+    public FileResponse retrieveFile(Long ticketId, String fileName, String extension) {
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Ticket Found With Such Id")
+        );
+        FileRecord fileRecord = fileRecordRepository.findFirstByTicketAndFileNameAndExtension(ticket, fileName, extension)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No File Found")
+                );
+        return new FileResponse(
+                fileRecord.getId(),
+                fileRecord.getFileName() + "." + fileRecord.getExtension(),
+                fileRecord.getFileData(),
+                getStreamingData(fileRecord.getFileData()));
     }
 
 }

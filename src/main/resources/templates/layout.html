@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <title>Helpdesk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--    <link rel="icon" type="image/ico" th:href="@{/favicon.ico}">-->
+    <link rel="stylesheet" th:href="@{/resources/css/normalize.css}">
+    <link rel="stylesheet" th:href="@{/resources/css/font-awesome.css}">
+    <link rel="stylesheet" th:href="@{/resources/css/site.css}">
+    <script th:src="@{/resources/script/jquery-3.6.0.js}"></script>
+    <script th:src="@{/resources/script/data-provider.js}"></script>
+    <script th:src="@{/resources/script/ui-event.js}" defer></script>
+</head>
+<body>
+<header th:fragment="header">
+    <div><i class="fas fa-leaf"></i> Helpdesk CMS</div>
+    <div class="user">
+        <span sec:authentication="name">anonymous</span>
+        <form th:attr="action=@{/logout}" method="POST">
+            <input type="hidden"/> <!--th:name="${_csrf.parameterName}" th:value="${_csrf.token}"-->
+            <button type="submit"><i class="fas fa-sign-out-alt"></i></button>
+        </form>
+    </div>
+</header>
+<nav th:fragment="navigation">
+    <h5><i class="fas fa-leaf"></i> Helpdesk CMS</h5>
+    <a th:href="@{/}"><i class="fas fa-home"></i> Home</a>
+    <a th:href="@{/authors}"><i class="fas fa-at"></i> Authors</a>
+    <a th:href="@{/books}"><i class="fas fa-book-open"></i> Books</a>
+    <a th:href="@{/customers}"><i class="fas fa-heart"></i> Customers</a>
+    <a th:href="@{/loan}"><i class="fas fa-suitcase"></i> Loan</a>
+</nav>
+<main>
+    <div class="landing-box">
+        <h1><i class="fas fa-leaf"></i></h1>
+        <h2>Winterhold Library</h2>
+        <p>Knowledge is the best weapon you have, please find some fascinating books we have.</p>
+        <p>This app will help you do that, as long as you keep extend your membership!</p>
+        <span class="bold">(It's totally free!)</span>
+    </div>
+</main>
+<footer th:fragment="footer">
+    <p>Copyright &copy 2023
+        <span class="bold">Ferdy Nanda Riza</span>
+        All rights reserved.</p>
+</footer>
+
+</body>

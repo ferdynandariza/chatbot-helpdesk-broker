@@ -27,7 +27,6 @@ public class SchedulerTask {
         BlastingTemplate blastingTemplate = blastingService.getBlastingTemplate();
         if(blastingTemplate != null){
             log.info(blastingTemplate.toString());
-            log.info(blastingTemplate.getFields());
         }
     }
 }

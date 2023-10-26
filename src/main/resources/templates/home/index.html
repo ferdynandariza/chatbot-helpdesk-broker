@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://thymeleaf.org">
+<head th:replace="~{layout ::head}"></head>
+<body>
+<header th:replace="~{layout ::header}"></header>
+<nav th:replace="~{layout ::navigation}"></nav>
+<main>
+    <div>
+        <form class="search-box" th:attr="action=@{/api/tickets}" method="get">
+            <table>
+                <tbody>
+                <tr>
+                    <td><label>No. Tiket</label></td>
+                    <td><input type="text" placeholder="No. tiket.." name="number"></td>
+                </tr>
+                <tr>
+                    <td><label>Perusahaan</label></td>
+                    <td><select name="companyId" id="company"></select></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <button type="submit">Search</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+
+    </div>
+
+    <div class="data-grid">
+        <table>
+            <thead>
+            <tr>
+                <th>No. Tiket</th>
+                <th>Nama Pemohon</th>
+                <th>Deskripsi</th>
+                <th>Tanggal Dibuat</th>
+                <th>Aksi</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="5">
+                    <button class="page-button prev-button button-like" type="button">Previous</button>
+                    <span class="current-page" data-total="0"></span>
+                    <button class="page-button next-button button-like" type="button">Next</button>
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+</main>
+<footer th:replace="~{layout ::footer}"></footer>
+
+</body>

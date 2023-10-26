@@ -7,6 +7,8 @@ import com.iglo.chatbothelpdesk.service.CompanyService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "/api/companies")
 public class CompanyController {
@@ -33,6 +35,14 @@ public class CompanyController {
     public WebResponse<CompanyResponse> get(@PathVariable(name = "companyId") Long companyId){
         CompanyResponse response = companyService.get(companyId);
         return WebResponse.<CompanyResponse>builder().data(response).build();
+    }
+
+    @GetMapping(
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<List<CompanyResponse>> getAll(){
+        List<CompanyResponse> response = companyService.getCompanies();
+        return WebResponse.<List<CompanyResponse>>builder().data(response).build();
     }
 
 

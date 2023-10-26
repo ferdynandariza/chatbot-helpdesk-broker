@@ -48,11 +48,11 @@ create table Ticket
 
 CREATE TABLE FileRecord
 (
-    id            VARCHAR(100) PRIMARY KEY,
-    fileName      NVARCHAR(255),
-    extension     VARCHAR(10),
-    fileData      VARBINARY(MAX),
-    ticketId      bigint,
+    id        VARCHAR(100) PRIMARY KEY,
+    fileName  NVARCHAR(255),
+    extension VARCHAR(10),
+    fileData  VARBINARY(MAX),
+    ticketId  bigint,
     foreign key (ticketId) references Ticket (id)
 );
 
@@ -71,4 +71,6 @@ from FileRecord;
 select *
 from BlastingTemplate;
 
-delete from FileRecord where ticketId is null;
+delete
+from FileRecord
+where ticketId is null;
